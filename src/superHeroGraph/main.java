@@ -9,48 +9,58 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import attributs.Hero;
+import attributs.KnowledgeGraph;
+import attributs.Node;
+
 public class main {
 
 	public static void main(String[] args) {
 		
+		/********************************************************************************************************/
+		/****************************************PROGRAMME PRINCIPAL*********************************************/
+		/********************************************************************************************************/
 		
+		int nbHeroes = 100;
+		
+		KnowledgeGraph knowGraph = new KnowledgeGraph();
+		makeParse(knowGraph,nbHeroes);
+        
+		
+		//Exemples
+        knowGraph.showRelations("attributs.Hero");
+        knowGraph.showRelations("A-Bomb");
+        knowGraph.showRelations("100");
+        
+        /********************************************************************************************************/
+        /********************************************************************************************************/
+        /********************************************************************************************************/
+	}
+	
+	/*
+	 * Gère la connexion avec l'API à distance en remplissant le graphe pour tout les héros 
+	 * de 1 à 563 définit par nbHeroes
+	 * 
+	 * Max Heroes : 563
+	 */
+	public static void makeParse(KnowledgeGraph knowGraph, int nbHeroes)
+	{
 		// RECUPERATION DES HEROS
-		
 		JSONParser jsonParser = new JSONParser();
         try (FileReader reader = new FileReader("superHeroes.json"))
         {
             //Read JSON file
             Object obj = jsonParser.parse(reader);
  
-            // Max Heroes : 563
             JSONArray heroesList = (JSONArray) obj;
-            for(int i = 0; i < 10 ; i++)
+            for(int i = 0; i < nbHeroes ; i++)
             {
             	//VOIR VOCABULAIRE W3C
                 JSONObject hero = (JSONObject)heroesList.get(i);
                 
-                System.out.println(hero.get("name"));
-                
-                JSONObject heroStats = (JSONObject)hero.get("powerstats");
-                System.out.println(heroStats.get("intelligence"));
-                System.out.println(heroStats.get("strength"));
-                System.out.println(heroStats.get("speed"));
-                System.out.println(heroStats.get("durability"));
-                System.out.println(heroStats.get("power"));
-                System.out.println(heroStats.get("combat"));
-
-                JSONObject heroAppearance = (JSONObject)hero.get("appearance");
-                System.out.println(heroAppearance.get("gender"));
-                System.out.println(heroAppearance.get("race"));
-                
-                JSONObject heroBiography = (JSONObject)hero.get("biography");
-                System.out.println(heroBiography.get("publisher"));
-                System.out.println(heroBiography.get("alignment"));
-                System.out.println(heroBiography.get("alterEgos"));
-                
-                JSONObject heroConnections = (JSONObject)hero.get("connections");
-                System.out.println(heroConnections.get("groupAffiliation"));
-            } 
+                Hero newHero = createHero(hero);
+                updateGraph(newHero,knowGraph);
+            }  
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -58,6 +68,106 @@ public class main {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+	}
+	
+	/*
+	 * Créer un héros depuis l'API
+	 */
+	public static Hero createHero(JSONObject hero)
+	{
+        JSONObject heroStats = (JSONObject)hero.get("powerstats");
+        JSONObject heroAppearance = (JSONObject)hero.get("appearance");
+        JSONObject heroBiography = (JSONObject)hero.get("biography");
+        JSONObject heroConnections = (JSONObject)hero.get("connections");
+        
+        String heroName = hero.get("name").toString();
+        String intelligence = heroStats.get("intelligence").toString();
+        String strength = heroStats.get("strength").toString();
+        String speed = heroStats.get("speed").toString();
+        String durability = heroStats.get("durability").toString();
+        String power = heroStats.get("power").toString();
+        String combat = heroStats.get("combat").toString();
+        String gender = heroAppearance.get("gender").toString();
+       // String race = heroAppearance.get("race").toString();
+        String publisher = heroBiography.get("publisher").toString();
+        String alignment = heroBiography.get("alignment").toString();
+        String alterEgos = heroBiography.get("alterEgos").toString();
+        String groupAffiliation = heroConnections.get("groupAffiliation").toString();
+        
+        Hero newHero = new Hero(
+        		heroName,
+        		gender,
+        		null,
+        		Integer.parseInt(intelligence),
+        		Integer.parseInt(strength),
+        		Integer.parseInt(speed),
+        		Integer.parseInt(durability),
+        		Integer.parseInt(power),
+        		Integer.parseInt(combat),
+        		publisher,
+        		alignment,
+        		alterEgos,
+        		groupAffiliation);
+        
+        return newHero;
+	}
+	
+	/*
+	 * Update le graph en ajoutant les différentes relations d'un héros
+	 */
+	public static void updateGraph(Hero newHero,KnowledgeGraph knowGraph)
+	{
+		 Node heros = new Node(newHero.getClass().getName());
+         Node entity = new Node(newHero.getClass().getSuperclass().getName());
+         Node heroName = new Node(newHero.getName());
+         //Node heroRace = new Node(newHero.getRace());
+         Node heroGender = new Node(newHero.getGender());
+         Node heroIntelligence = new Node(newHero.getIntelligence());
+         Node heroStrength = new Node(newHero.getStrength());
+         Node heroSpeed = new Node(newHero.getSpeed());
+         Node heroDurability = new Node(newHero.getDurability());
+         Node heroPower = new Node(newHero.getPower());
+         Node heroCombat = new Node(newHero.getCombat());
+         Node heroPublisher = new Node(newHero.getPublisher());
+         Node heroAlignement = new Node(newHero.getAlignment());
+         Node heroAlterEgos = new Node(newHero.getAlterEgos());
+         Node heroGroup = new Node(newHero.getGroupAffiliation());
+         
+         knowGraph.add(entity);
+         knowGraph.add(heros);
+         knowGraph.add(heroName);
+         //knowGraph.add(heroRace);
+         knowGraph.add(heroGender);
+         knowGraph.add(heroIntelligence);
+         knowGraph.add(heroStrength);
+         knowGraph.add(heroSpeed);
+         knowGraph.add(heroDurability);
+         knowGraph.add(heroPower);
+         knowGraph.add(heroCombat);
+         knowGraph.add(heroPublisher);
+         knowGraph.add(heroAlignement);
+         
+         if(!(heroAlterEgos.name.equals("No alter egos found.")))
+         {
+        	 knowGraph.add(heroAlterEgos);
+        	 knowGraph.addRelation(heroName,heroAlterEgos, "alterEgos");
+         }
+         knowGraph.add(heroGroup);
+         
+         //knowGraph.addRelation(heroName,heroRace, "race");
+         knowGraph.addRelation(entity,heros, "ako");
+         knowGraph.addRelation(heros,heroName, "instance");
+         knowGraph.addRelation(heroName,heroGender, "gender");
+         knowGraph.addRelation(heroName,heroIntelligence, "intelligence");
+         knowGraph.addRelation(heroName,heroStrength, "strength");
+         knowGraph.addRelation(heroName,heroSpeed, "speed");
+         knowGraph.addRelation(heroName,heroDurability, "durability");
+         knowGraph.addRelation(heroName,heroPower, "power");
+         knowGraph.addRelation(heroName,heroCombat, "combat");
+         knowGraph.addRelation(heroName,heroPublisher, "publisher");
+         knowGraph.addRelation(heroName,heroAlignement, "alignment");
+         knowGraph.addRelation(heroName,heroGroup, "group");
+		
 	}
 
 }
