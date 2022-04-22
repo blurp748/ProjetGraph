@@ -9,34 +9,87 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import attributs.Hero;
-import attributs.KnowledgeGraph;
-import attributs.Node;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 
-public class main {
-
+public class main extends Application {
+	
+	static final int HAUTEUR = 800;
+	static final int LARGEUR = 1200;
+	static final int NBHEROES = 3;
+	
+	Graph graph = new Graph();
+	
+	/********************************************************************************************************/
+	/****************************************PROGRAMME PRINCIPAL*********************************************/
+	/********************************************************************************************************/
+	
 	public static void main(String[] args) {
-		
-		/********************************************************************************************************/
-		/****************************************PROGRAMME PRINCIPAL*********************************************/
-		/********************************************************************************************************/
-		
-		int nbHeroes = 100;
-		
-		KnowledgeGraph knowGraph = new KnowledgeGraph();
-		makeParse(knowGraph,nbHeroes);
         
-		
-		//Exemples
-        knowGraph.showRelations("attributs.Hero");
-        knowGraph.showRelations("A-Bomb");
-        knowGraph.showRelations("100");
-        
-        /********************************************************************************************************/
-        /********************************************************************************************************/
-        /********************************************************************************************************/
+        launch(args);
 	}
 	
+    /********************************************************************************************************/
+    /**********************************FONCTIONS LIEES AU CANVAS*********************************************/
+    /********************************************************************************************************/
+	
+	@Override
+	public void start(Stage primaryStage) {		
+		
+        BorderPane root = new BorderPane();
+
+        graph = new Graph();
+
+        root.setCenter(graph.getScrollPane());
+
+        Scene scene = new Scene(root, 1024, 768);
+        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+
+        primaryStage.setScene(scene);
+        primaryStage.show();
+
+        addGraphComponents();
+
+        Layout layout = new RandomLayout(graph);
+        layout.execute();
+	}
+	
+    private void addGraphComponents() {
+		
+		KnowledgeGraph knowGraph = new KnowledgeGraph();
+		makeParse(knowGraph,NBHEROES);
+
+        Model model = graph.getModel();
+
+        graph.beginUpdate();
+        
+        for(Node node : knowGraph.getGraph())
+        {
+        	model.addCell(node.getName(), CellType.LABEL); // Crée les nodes
+        }
+        
+        for(Node node : knowGraph.getGraph())
+        {
+        	node.getRelations().forEach((key, value) -> {
+        		model.addEdge(node.getName(), key.getName()); //Crée les différentes relations
+        	});
+        }
+
+        graph.endUpdate();
+        
+		//Exemples
+        knowGraph.showRelations("superHeroGraph.Hero");
+        knowGraph.showRelations("A-Bomb");
+        knowGraph.showRelations("100");
+
+    }
+	
+    /********************************************************************************************************/
+    /**********************************FONCTIONS LIEES AU GRAPH*********************************************/
+    /********************************************************************************************************/
+    
 	/*
 	 * Gère la connexion avec l'API à distance en remplissant le graphe pour tout les héros 
 	 * de 1 à 563 définit par nbHeroes
@@ -169,5 +222,4 @@ public class main {
          knowGraph.addRelation(heroName,heroGroup, "group");
 		
 	}
-
 }

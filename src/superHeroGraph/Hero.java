@@ -1,4 +1,4 @@
-package attributs;
+package superHeroGraph;
 
 public class Hero extends Entity {
 	

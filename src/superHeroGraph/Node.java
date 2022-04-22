@@ -1,4 +1,4 @@
-package attributs;
+package superHeroGraph;
 
 import java.util.HashMap;
 
