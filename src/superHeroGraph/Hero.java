@@ -6,7 +6,7 @@ public class Hero extends Entity {
 	private String publisher;
 	private String alignment;
 	private String alterEgos;
-	private String groupAffiliation;
+	private String[] groupAffiliation;
 	
 	public Hero(
 			String name,
@@ -21,7 +21,7 @@ public class Hero extends Entity {
 			String publisher,
 			String alignment,
 			String alterEgos,
-			String groupAffiliation
+			String[] groupAffiliation
 			)
 	{
 		this.setName(name);
@@ -111,11 +111,11 @@ public class Hero extends Entity {
 		this.alterEgos = alterEgos;
 	}
 
-	public String getGroupAffiliation() {
+	public String[] getGroupAffiliation() {
 		return groupAffiliation;
 	}
 
-	public void setGroupAffiliation(String groupAffiliation) {
+	public void setGroupAffiliation(String[] groupAffiliation) {
 		this.groupAffiliation = groupAffiliation;
 	}
 

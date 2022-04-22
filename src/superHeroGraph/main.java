@@ -3,6 +3,7 @@ package superHeroGraph;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -145,7 +146,8 @@ public class main extends Application {
         String publisher = heroBiography.get("publisher").toString();
         String alignment = heroBiography.get("alignment").toString();
         String alterEgos = heroBiography.get("alterEgos").toString();
-        String groupAffiliation = heroConnections.get("groupAffiliation").toString();
+        String groupAffiliationComplete = heroConnections.get("groupAffiliation").toString();
+        String[] groupAffiliation = groupAffiliationComplete.split(";|,|and|ally of|formerly partner of");
         
         Hero newHero = new Hero(
         		heroName,
@@ -184,8 +186,21 @@ public class main extends Application {
          Node heroPublisher = new Node(newHero.getPublisher());
          Node heroAlignement = new Node(newHero.getAlignment());
          Node heroAlterEgos = new Node(newHero.getAlterEgos());
-         Node heroGroup = new Node(newHero.getGroupAffiliation());
          
+         ArrayList<Node> heroGroup = new ArrayList<Node>();
+         for(int i = 0; i < newHero.getGroupAffiliation().length;i++)
+         {
+        	 String tmp = newHero.getGroupAffiliation()[i];
+        	 if (tmp.charAt(0) == ' ')
+        	 {
+        		 tmp = tmp.replaceFirst(" ", "");
+        	 }
+        	 if(tmp.isBlank() == false)
+        	 {
+        		 heroGroup.add(new Node(tmp));
+        	 }
+         }
+          
          knowGraph.add(entity);
          knowGraph.add(heros);
          knowGraph.add(heroName);
@@ -205,7 +220,7 @@ public class main extends Application {
         	 knowGraph.add(heroAlterEgos);
         	 knowGraph.addRelation(heroName,heroAlterEgos, "alterEgos");
          }
-         knowGraph.add(heroGroup);
+         heroGroup.forEach(node -> knowGraph.add(node));
          
          //knowGraph.addRelation(heroName,heroRace, "race");
          knowGraph.addRelation(entity,heros, "ako");
@@ -219,7 +234,7 @@ public class main extends Application {
          knowGraph.addRelation(heroName,heroCombat, "combat");
          knowGraph.addRelation(heroName,heroPublisher, "publisher");
          knowGraph.addRelation(heroName,heroAlignement, "alignment");
-         knowGraph.addRelation(heroName,heroGroup, "group");
+         heroGroup.forEach(node -> knowGraph.addRelation(heroName,node,"group"));
 		
 	}
 }
