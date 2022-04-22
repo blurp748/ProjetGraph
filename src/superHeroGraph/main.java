@@ -73,7 +73,7 @@ public class main extends Application {
         for(Node node : knowGraph.getGraph())
         {
         	node.getRelations().forEach((key, value) -> {
-        		model.addEdge(node.getName(), key.getName()); //Crée les différentes relations
+        		model.addEdge(node.getName(), key.getName(), value); //Crée les différentes relations
         	});
         }
 
