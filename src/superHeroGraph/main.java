@@ -11,7 +11,12 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Orientation;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
@@ -19,7 +24,7 @@ public class main extends Application {
 	
 	static final int HAUTEUR = 800;
 	static final int LARGEUR = 1200;
-	static final int NBHEROES = 3;
+	static final int NBHEROES = 5;
 	
 	Graph graph = new Graph();
 	
@@ -43,6 +48,50 @@ public class main extends Application {
 
         graph = new Graph();
 
+        ListView<Button> listViewReference = new ListView<Button>();
+        
+        ArrayList<String> relationsName = new ArrayList<String>();
+        relationsName.add("all");
+        relationsName.add("ako");
+        relationsName.add("instance");
+        relationsName.add("gender");
+        relationsName.add("intelligence");
+        relationsName.add("strength");
+        relationsName.add("speed");
+        relationsName.add("durability");
+        relationsName.add("power");
+        relationsName.add("combat");
+        relationsName.add("publisher");
+        relationsName.add("alignment");
+        relationsName.add("group");
+        
+        for(String relation : relationsName)
+        {
+            Button button = new Button();
+            if(relation == "all")
+            {
+            	button.setText("See all");
+            }else {
+            	button.setText("Only " + relation);
+            }
+            
+            EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
+                public void handle(ActionEvent e)
+                {
+                	graph = new Graph();
+                	root.setCenter(graph.getScrollPane());
+                	addGraphComponents(relation);
+                    Layout layout = new RandomLayout(graph);
+                    layout.execute();
+                }
+            };
+            button.setOnAction(event);
+            listViewReference.getItems().add(button);
+        }
+        
+        listViewReference.setOrientation(Orientation.VERTICAL);
+        
+        root.setLeft(listViewReference);
         root.setCenter(graph.getScrollPane());
 
         Scene scene = new Scene(root, 1024, 768);
@@ -51,13 +100,13 @@ public class main extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        addGraphComponents();
+        addGraphComponents("all");
 
         Layout layout = new RandomLayout(graph);
         layout.execute();
 	}
 	
-    private void addGraphComponents() {
+    private void addGraphComponents(String relations) {
 		
 		KnowledgeGraph knowGraph = new KnowledgeGraph();
 		makeParse(knowGraph,NBHEROES);
@@ -68,13 +117,31 @@ public class main extends Application {
         
         for(Node node : knowGraph.getGraph())
         {
-        	model.addCell(node.getName(), CellType.LABEL); // Crée les nodes
+        	if(relations != "all")
+        	{
+        		if(node.getRelations().containsValue(relations))
+        		{
+        			model.addCell(node.getName(), CellType.LABEL); // Crée les nodes
+        		}
+        	}else {
+        		model.addCell(node.getName(), CellType.LABEL); // Crée les nodes
+        	}
         }
         
         for(Node node : knowGraph.getGraph())
         {
         	node.getRelations().forEach((key, value) -> {
-        		model.addEdge(node.getName(), key.getName(), value); //Crée les différentes relations
+        		if(relations != "all")
+        		{
+        			if(value.equals(relations))
+        			{
+        				model.addEdge(node.getName(), key.getName(), value); //Crée les différentes relations
+        			}
+        		}else
+        		{
+        			model.addEdge(node.getName(), key.getName(), value); //Crée les différentes relations
+        		}
+        		
         	});
         }
 
@@ -88,7 +155,7 @@ public class main extends Application {
     }
 	
     /********************************************************************************************************/
-    /**********************************FONCTIONS LIEES AU GRAPH*********************************************/
+    /**********************************FONCTIONS LIEES A L'API***********************************************/
     /********************************************************************************************************/
     
 	/*
@@ -191,7 +258,7 @@ public class main extends Application {
          for(int i = 0; i < newHero.getGroupAffiliation().length;i++)
          {
         	 String tmp = newHero.getGroupAffiliation()[i];
-        	 if (tmp.charAt(0) == ' ')
+        	 if (tmp.isEmpty() == false && tmp.charAt(0) == ' ')
         	 {
         		 tmp = tmp.replaceFirst(" ", "");
         	 }
