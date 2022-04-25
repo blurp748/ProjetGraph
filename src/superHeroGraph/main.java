@@ -27,8 +27,10 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -39,7 +41,7 @@ public class main extends Application {
 	
 	static final int HAUTEUR = 800;
 	static final int LARGEUR = 1200;
-	static final int NBHEROES = 10;
+	static final int NBHEROES = 100;
 	
 	Graph graph = new Graph();
 	KnowledgeGraph knowGraph = new KnowledgeGraph();
@@ -70,6 +72,7 @@ public class main extends Application {
         relationsName.add("ako");
         relationsName.add("instance");
         relationsName.add("gender");
+        relationsName.add("race");
         relationsName.add("intelligence");
         relationsName.add("strength");
         relationsName.add("speed");
@@ -130,10 +133,37 @@ public class main extends Application {
         listViewReference.getItems().add(imgView);
        //------------------------------------------------------------------
         
+        //Search
+      //------------------------------------------------------------------
+        
+        TextField textField = new TextField();
+        
+        Button searchButton = new Button();
+        searchButton.setText("Search");
+        
+        EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent e)
+            {
+            	graph = new Graph();
+            	root.setCenter(graph.getScrollPane());
+            	addGraphComponentsSearch(textField.getText());
+            	System.out.println(textField.getText());
+                Layout layout = new RandomLayout(graph);
+                layout.execute();
+            }
+        };
+        searchButton.setOnAction(event);
+        HBox hbox = new HBox();
+        hbox.getChildren().add(textField);
+        hbox.getChildren().add(searchButton);
+       //------------------------------------------------------------------
 
         
         listViewReference.setOrientation(Orientation.VERTICAL);
         
+
+        
+        root.setTop(hbox);
         root.setLeft(listViewReference);
         root.setCenter(graph.getScrollPane());
 
@@ -187,6 +217,39 @@ public class main extends Application {
         	});
         }
 
+        graph.endUpdate();
+
+    }
+    
+    private void addGraphComponentsSearch(String search) {
+		
+		makeParse(knowGraph,NBHEROES);
+
+        Model model = graph.getModel();
+
+        graph.beginUpdate();
+        
+        for(Node node : knowGraph.getGraph())
+        {
+        	if(search.equals(node.getName()))
+        	{
+        		model.addCell(node.getName(), CellType.RECTANGLE); // Crée les nodes
+        		break;
+        	}
+        }
+        
+        for(Node node : knowGraph.getGraph())
+        {
+        	if(search.equals(node.getName()))
+        	{
+            	node.getRelations().forEach((key, value) -> {
+            		model.addCell(key.getName(), CellType.RECTANGLE);
+        			model.addEdge(node.getName(), key.getName(), value); //Crée les différentes relations
+            	});
+            	break;
+        	}
+        }
+        
         graph.endUpdate();
 
     }
@@ -246,7 +309,12 @@ public class main extends Application {
         String power = heroStats.get("power").toString();
         String combat = heroStats.get("combat").toString();
         String gender = heroAppearance.get("gender").toString();
-       // String race = heroAppearance.get("race").toString();
+        Object race = heroAppearance.get("race");
+        String raceString = null;
+        if(race != null)
+        {
+        	raceString = race.toString();
+        }
         String publisher = heroBiography.get("publisher").toString();
         String alignment = heroBiography.get("alignment").toString();
         String alterEgos = heroBiography.get("alterEgos").toString();
@@ -256,7 +324,7 @@ public class main extends Application {
         Hero newHero = new Hero(
         		heroName,
         		gender,
-        		null,
+        		raceString,
         		Integer.parseInt(intelligence),
         		Integer.parseInt(strength),
         		Integer.parseInt(speed),
@@ -279,7 +347,12 @@ public class main extends Application {
 		 Node heros = new Node(newHero.getClass().getName());
          Node entity = new Node(newHero.getClass().getSuperclass().getName());
          Node heroName = new Node(newHero.getName());
-         //Node heroRace = new Node(newHero.getRace());
+         Node heroRace = null;
+         if(newHero.getRace() != null)
+         {
+        	 heroRace = new Node(newHero.getRace()); 
+         }
+         
          Node heroGender = new Node(newHero.getGender());
          Node heroIntelligence = new Node(newHero.getIntelligence());
          Node heroStrength = new Node(newHero.getStrength());
@@ -308,7 +381,10 @@ public class main extends Application {
          knowGraph.add(entity);
          knowGraph.add(heros);
          knowGraph.add(heroName);
-         //knowGraph.add(heroRace);
+         if(heroRace != null)
+         {
+        	 knowGraph.add(heroRace);
+         }
          knowGraph.add(heroGender);
          knowGraph.add(heroIntelligence);
          knowGraph.add(heroStrength);
@@ -326,7 +402,10 @@ public class main extends Application {
          }
          heroGroup.forEach(node -> knowGraph.add(node));
          
-         //knowGraph.addRelation(heroName,heroRace, "race");
+         if(heroRace != null)
+         {
+        	 knowGraph.addRelation(heroName,heroRace, "race");
+         }
          knowGraph.addRelation(entity,heros, "ako");
          knowGraph.addRelation(heros,heroName, "instance");
          knowGraph.addRelation(heroName,heroGender, "gender");
