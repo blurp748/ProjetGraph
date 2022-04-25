@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="C:/Users/Mathis/Desktop/superHeroGraphgit/ProjetGraph/json-simple-1.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JavaFX"/>
+	<classpathentry kind="lib" path="C:/JavaFX/gson-2.8.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

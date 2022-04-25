@@ -2,13 +2,20 @@ package superHeroGraph;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
+
+import javax.swing.JFileChooser;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -17,16 +24,25 @@ import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
 public class main extends Application {
 	
+	//FAIRE PRESENTATION POWERPOINT
+	
 	static final int HAUTEUR = 800;
 	static final int LARGEUR = 1200;
-	static final int NBHEROES = 5;
+	static final int NBHEROES = 10;
 	
 	Graph graph = new Graph();
+	KnowledgeGraph knowGraph = new KnowledgeGraph();
 	
 	/********************************************************************************************************/
 	/****************************************PROGRAMME PRINCIPAL*********************************************/
@@ -46,10 +62,11 @@ public class main extends Application {
 		
         BorderPane root = new BorderPane();
 
-        graph = new Graph();
+        knowGraph = new KnowledgeGraph();
 
         ListView<Button> listViewReference = new ListView<Button>();
         
+        //A ameliorer
         ArrayList<String> relationsName = new ArrayList<String>();
         relationsName.add("all");
         relationsName.add("ako");
@@ -89,6 +106,34 @@ public class main extends Application {
             listViewReference.getItems().add(button);
         }
         
+        //Save JSON
+      //------------------------------------------------------------------
+        Button imgView = new Button();
+        imgView.setText("Sauvegarder en JSON");
+        //Creating a File chooser
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save");
+        fileChooser.getExtensionFilters().addAll(new ExtensionFilter("All Files", "*.*"));
+        //Adding action on the menu item
+        imgView.setOnAction(new EventHandler<ActionEvent>() {
+           public void handle(ActionEvent event) {
+        	   JFileChooser chooser = new JFileChooser();
+        	   int retrival = chooser.showSaveDialog(null);
+              if (retrival == JFileChooser.APPROVE_OPTION) {
+					try (Writer writer = new FileWriter(chooser.getSelectedFile()+".json")) {
+					    Gson gson = new GsonBuilder().create();
+					    gson.toJson(knowGraph.getGraph(), writer);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+              }
+           }
+        });
+        listViewReference.getItems().add(imgView);
+       //------------------------------------------------------------------
+        
+
+        
         listViewReference.setOrientation(Orientation.VERTICAL);
         
         root.setLeft(listViewReference);
@@ -108,7 +153,6 @@ public class main extends Application {
 	
     private void addGraphComponents(String relations) {
 		
-		KnowledgeGraph knowGraph = new KnowledgeGraph();
 		makeParse(knowGraph,NBHEROES);
 
         Model model = graph.getModel();
@@ -146,11 +190,6 @@ public class main extends Application {
         }
 
         graph.endUpdate();
-        
-		//Exemples
-        knowGraph.showRelations("superHeroGraph.Hero");
-        knowGraph.showRelations("A-Bomb");
-        knowGraph.showRelations("100");
 
     }
 	
