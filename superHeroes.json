@@ -5,14 +5,14 @@
     "slug": "1-a-bomb",
     "powerstats": {
       "intelligence": 38,
-      "strength": 100,
+      "strength": 52,
       "speed": 17,
       "durability": 80,
       "power": 24,
-      "combat": 64
+      "combat": 68
     },
     "appearance": {
-      "gender": "Male",
+      "gender": "Female",
       "race": "Human",
       "height": [
         "6'8",
@@ -34,7 +34,7 @@
       "placeOfBirth": "Scarsdale, Arizona",
       "firstAppearance": "Hulk Vol 2 #2 (April, 2008) (as A-Bomb)",
       "publisher": "Marvel Comics",
-      "alignment": "good"
+      "alignment": "bad"
     },
     "work": {
       "occupation": "Musician, adventurer, author; formerly talk show host",
@@ -88,7 +88,7 @@
       "placeOfBirth": "-",
       "firstAppearance": "Hellboy: Seed of Destruction (1993)",
       "publisher": "Dark Horse Comics",
-      "alignment": "good"
+      "alignment": "neutral"
     },
     "work": {
       "occupation": "Paranormal Investigator",

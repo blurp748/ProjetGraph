@@ -25,6 +25,14 @@ public class Node {
 		node.getRelations().putIfAbsent(this, reason);
 	}
 	
+	public void removeRelations()
+	{
+		this.relations.forEach((key,value) -> {
+			key.getRelations().remove(this);
+		}
+		);
+	}
+	
 	public HashMap<Node,String> getRelations()
 	{
 		return this.relations;

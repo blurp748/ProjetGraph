@@ -24,6 +24,13 @@ public class KnowledgeGraph {
 		
 	}
 	
+	public void delete(Node node) {
+		if(this.exists(node.name) != -1)
+		{
+			graph.remove(node);
+		}
+	}
+	
 	public int exists(String name)
 	{
 		int res = -1;
