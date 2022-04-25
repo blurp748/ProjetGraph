@@ -62,8 +62,6 @@ public class main extends Application {
 		
         BorderPane root = new BorderPane();
 
-        knowGraph = new KnowledgeGraph();
-
         ListView<Button> listViewReference = new ListView<Button>();
         
         //A ameliorer
@@ -165,10 +163,10 @@ public class main extends Application {
         	{
         		if(node.getRelations().containsValue(relations))
         		{
-        			model.addCell(node.getName(), CellType.LABEL); // Crée les nodes
+        			model.addCell(node.getName(), CellType.RECTANGLE); // Crée les nodes
         		}
         	}else {
-        		model.addCell(node.getName(), CellType.LABEL); // Crée les nodes
+        		model.addCell(node.getName(), CellType.RECTANGLE); // Crée les nodes
         	}
         }
         
