@@ -79,5 +79,4 @@ public class KnowledgeGraph {
 			System.out.println("*******************************************************");
 		}
 	}
-	
 }

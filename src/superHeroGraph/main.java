@@ -23,14 +23,17 @@ import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -41,7 +44,7 @@ public class main extends Application {
 	
 	static final int HAUTEUR = 800;
 	static final int LARGEUR = 1200;
-	static final int NBHEROES = 5;
+	static final int NBHEROES = 3;
 	
 	Graph graph = new Graph();
 	KnowledgeGraph knowGraph = new KnowledgeGraph();
@@ -70,6 +73,7 @@ public class main extends Application {
         
         //A ameliorer
         ArrayList<String> relationsName = new ArrayList<String>();
+        relationsName.add("all");
         for(Node node : knowGraph.getGraph())
         {
         	node.getRelations().forEach((key, value) -> {
@@ -170,9 +174,54 @@ public class main extends Application {
         };
         searchButton.setOnAction(event);
         HBox hbox = new HBox();
+        TitledPane res = new TitledPane();
+        hbox.getChildren().add(res);
         hbox.getChildren().add(textField);
         hbox.getChildren().add(searchButton);
        //------------------------------------------------------------------
+        
+        //PathFinding
+        //------------------------------------------------------------------
+          
+          TextField textField2 = new TextField();
+          TextField textField3 = new TextField();
+          
+          Button pathButton = new Button();
+          
+          VBox content = new VBox();
+          
+          pathButton.setText("Search Path");
+          
+          EventHandler<ActionEvent> eventPath = new EventHandler<ActionEvent>() {
+              public void handle(ActionEvent e)
+              {
+            	int node1int = knowGraph.exists(textField2.getText());
+            	int node2int = knowGraph.exists(textField3.getText());
+            	
+            	if(node1int != -1 && node2int != -1)
+            	{
+              		Node node1 = knowGraph.getGraph().get(node1int); 
+            		Node node2 = knowGraph.getGraph().get(node2int); 
+            		
+            		ArrayList<Node> array = new ArrayList<Node>();
+            		
+            		ArrayList<String> show = pathNodes(node1,node2,node1,array,"");
+            		
+            		for(String i : show)
+            		{
+            			content.getChildren().add(new Label(i));
+            		}
+            		System.out.println(show);
+            	}
+            	res.setContent(content);
+            	res.setExpanded(true);
+              }
+          };
+          pathButton.setOnAction(eventPath);
+          hbox.getChildren().add(textField2);
+          hbox.getChildren().add(textField3);
+          hbox.getChildren().add(pathButton);
+         //------------------------------------------------------------------
 
         
         listViewReference.setOrientation(Orientation.VERTICAL);
@@ -191,6 +240,7 @@ public class main extends Application {
 
         Layout layout = new RandomLayout(graph);
         layout.execute();
+		
 	}
 	
     private void addGraphComponents(String relations) {
@@ -258,7 +308,14 @@ public class main extends Application {
         ArrayList<Node> listNode = new ArrayList<Node>();
         for(Node node : knowGraph.getGraph())
         {
-        	if(node.getRelations().containsValue("instance") && !node.getName().equals("superHeroGraph.Hero") )
+        	if(node.getName().equals("Person"))
+        	{
+        		node.getRelations().forEach((key,value) -> {
+        			listNode.add(key);
+        		});
+        		listNode.add(node);
+        	}
+        	if(node.getRelations().containsValue("isa") && !node.getName().equals("superHeroGraph.Hero") && !node.getName().equals("Person") )
         	{
         		System.out.println("Tentative sur : " + node.getName());
             	int deleteOrNot = verifyNode(node,node,node,node.getName(),0);
@@ -340,7 +397,8 @@ public class main extends Application {
     
     private int verifyNode(Node node, Node tmpNode, Node previousNode, String path, int res)
     {
-    	if(tmpNode.getRelations().containsValue("instance") && !node.getName().equals(tmpNode.getName()) && !node.getName().equals("superHeroGraph.Hero"))
+    	System.out.println(tmpNode.getName());
+    	if(tmpNode.getRelations().containsValue("isa") && !node.getName().equals(tmpNode.getName()) && !tmpNode.getName().equals("superHeroGraph.Hero"))
     	{
     		System.out.println("true : " + tmpNode.getName() + " , path : " + path);
     		res++;
@@ -360,6 +418,33 @@ public class main extends Application {
     		
     	}
 		return res;
+    }
+    
+    private ArrayList<String> pathNodes(Node node1, Node node2, Node actualNode, ArrayList<Node> listNode,String path)
+    {
+    	if(actualNode.equals(node2))
+    	{
+    		System.out.println(path);
+    		ArrayList<String> res = new ArrayList<String>();
+    		res.add(path);
+    		return res;
+    	}else
+    	{
+    		ArrayList<Node> tmpList = new ArrayList<Node>();
+    		actualNode.getRelations().forEach((key,value) -> {
+    			if(!listNode.contains(key))
+    			{
+    				tmpList.add(key);
+    			}
+    		});
+    		listNode.add(actualNode);
+    		ArrayList<String> res = new ArrayList<String>();
+    		for(Node nodes : tmpList)
+    		{
+    			res.addAll(pathNodes(node1,node2,nodes,listNode,path+"->"+nodes.getName()));
+    		}
+    		return res;
+    	}
     }
 	
     /********************************************************************************************************/
@@ -518,7 +603,7 @@ public class main extends Application {
         	 knowGraph.addRelation(heroName,heroRace, "race");
          }
          knowGraph.addRelation(entity,heros, "ako");
-         knowGraph.addRelation(heroName,heros, "instance");
+         knowGraph.addRelation(heroName,heros, "isa");
          knowGraph.addRelation(heroName,heroGender, "gender");
          knowGraph.addRelation(heroName,heroIntelligence, "intelligence");
          knowGraph.addRelation(heroName,heroStrength, "strength");
@@ -530,6 +615,13 @@ public class main extends Application {
          knowGraph.addRelation(heroName,heroAlignement, "alignment");
          heroGroup.forEach(node -> knowGraph.addRelation(heroName,node,"group"));
          
+         Node personNode = null;
+         if(newHero.getRelatives().length > 0)
+         {
+        	 personNode = new Node("Person");
+        	 knowGraph.add(personNode);
+			 knowGraph.addRelation(entity,personNode, "ako");
+         }
          for(int i = 0; i < newHero.getRelatives().length;i++)
          {
         	 String tmp = newHero.getRelatives()[i];
@@ -548,6 +640,10 @@ public class main extends Application {
             		 {
             			 knowGraph.add(newNode);
             			 knowGraph.addRelation(heroName,newNode, tmpList[1]);
+            			 if(personNode != null)
+            			 {
+            				 knowGraph.addRelation(newNode,personNode, "isa");
+            			 }
             		 } 
         		 }
         	 }
