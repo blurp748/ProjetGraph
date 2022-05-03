@@ -195,6 +195,7 @@ public class main extends Application {
           EventHandler<ActionEvent> eventPath = new EventHandler<ActionEvent>() {
               public void handle(ActionEvent e)
               {
+            	content.getChildren().clear();
             	int node1int = knowGraph.exists(textField2.getText());
             	int node2int = knowGraph.exists(textField3.getText());
             	
@@ -594,33 +595,33 @@ public class main extends Application {
          if(!(heroAlterEgos.name.equals("No alter egos found.")))
          {
         	 knowGraph.add(heroAlterEgos);
-        	 knowGraph.addRelation(heroName,heroAlterEgos, "alterEgos");
+        	 knowGraph.addRelation(heroName,heroAlterEgos,"hero:"+ "alterEgos");
          }
          heroGroup.forEach(node -> knowGraph.add(node));
          
          if(heroRace != null)
          {
-        	 knowGraph.addRelation(heroName,heroRace, "race");
+        	 knowGraph.addRelation(heroName,heroRace,"hero:"+ "race");
          }
-         knowGraph.addRelation(entity,heros, "ako");
-         knowGraph.addRelation(heroName,heros, "isa");
-         knowGraph.addRelation(heroName,heroGender, "gender");
-         knowGraph.addRelation(heroName,heroIntelligence, "intelligence");
-         knowGraph.addRelation(heroName,heroStrength, "strength");
-         knowGraph.addRelation(heroName,heroSpeed, "speed");
-         knowGraph.addRelation(heroName,heroDurability, "durability");
-         knowGraph.addRelation(heroName,heroPower, "power");
-         knowGraph.addRelation(heroName,heroCombat, "combat");
-         knowGraph.addRelation(heroName,heroPublisher, "publisher");
-         knowGraph.addRelation(heroName,heroAlignement, "alignment");
-         heroGroup.forEach(node -> knowGraph.addRelation(heroName,node,"group"));
+         knowGraph.addRelation(entity,heros, "rdfs:subClassOf");
+         knowGraph.addRelation(heroName,heros, "rdf:type");
+         knowGraph.addRelation(heroName,heroGender,"hero:"+ "gender");
+         knowGraph.addRelation(heroName,heroIntelligence,"hero:"+ "intelligence");
+         knowGraph.addRelation(heroName,heroStrength,"hero:"+ "strength");
+         knowGraph.addRelation(heroName,heroSpeed,"hero:"+ "speed");
+         knowGraph.addRelation(heroName,heroDurability,"hero:"+ "durability");
+         knowGraph.addRelation(heroName,heroPower,"hero:"+ "power");
+         knowGraph.addRelation(heroName,heroCombat,"hero:"+ "combat");
+         knowGraph.addRelation(heroName,heroPublisher,"hero:"+ "publisher");
+         knowGraph.addRelation(heroName,heroAlignement,"hero:"+ "alignment");
+         heroGroup.forEach(node -> knowGraph.addRelation(heroName,node,"hero:"+"group"));
          
          Node personNode = null;
          if(newHero.getRelatives().length > 0)
          {
         	 personNode = new Node("Person");
         	 knowGraph.add(personNode);
-			 knowGraph.addRelation(entity,personNode, "ako");
+			 knowGraph.addRelation(entity,personNode, "rdfs:subClassOf");
          }
          for(int i = 0; i < newHero.getRelatives().length;i++)
          {
@@ -639,10 +640,10 @@ public class main extends Application {
             		 if(!knowGraph.getGraph().contains(newNode))
             		 {
             			 knowGraph.add(newNode);
-            			 knowGraph.addRelation(heroName,newNode, tmpList[1]);
+            			 knowGraph.addRelation(heroName,newNode, "hero:"+tmpList[1]);
             			 if(personNode != null)
             			 {
-            				 knowGraph.addRelation(newNode,personNode, "isa");
+            				 knowGraph.addRelation(newNode,personNode, "rdf:type");
             			 }
             		 } 
         		 }
